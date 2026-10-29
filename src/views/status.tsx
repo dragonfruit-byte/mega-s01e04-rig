@@ -1,6 +1,8 @@
+import { countByLastStatus } from '../digest/counts.js';
+import { readNight } from '../digest/read.js';
 import type { Status } from '../status.js';
 
-export function StatusBoard({ status }: { status: Status }) {
+export function StatusBoard({ status, runsDir }: { status: Status; runsDir: string }) {
   return (
     <>
       <h1>status</h1>
@@ -19,9 +21,16 @@ export function StatusBoard({ status }: { status: Status }) {
         <p class="mute">nothing in runs/</p>
       ) : (
         <ul>
-          {status.nights.map((n) => (
-            <li>{n}</li>
-          ))}
+          {status.nights.map((n) => {
+            const counts = countByLastStatus(readNight(runsDir, n).rows);
+            return (
+              <li>
+                <a href={`/digest/${n}`}>{n}</a>
+                {' · '}
+                {counts.ok} ok / {counts.retry} retry / {counts.fail} fail
+              </li>
+            );
+          })}
         </ul>
       )}
     </>
